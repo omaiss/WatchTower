@@ -1,0 +1,3 @@
+# This directory will contain the detector and tracker components, responsible for processing the video streams and identifying people and vehicles. 
+# The implementation details will be added here as the project develops. 
+# For now, this file is intentionally left blank.

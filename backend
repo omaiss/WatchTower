@@ -1,0 +1,3 @@
+# This directory will house the FastAPI application, which will handle the backend logic, including RTSP stream retrieval, detection, tracking, and database interactions.
+
+# The backend directory is intentionally left blank.
