@@ -1,553 +1,740 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Surveillance Dashboard</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml, <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'> <path fill='white' d='M149.1 64.8L171 32h170l21.9 32h86.1c23.6 0 43 19.4 43 43v298c0 23.6-19.4 43-43 43H64c-23.6 0-43-19.4-43-43V107.8c0-23.6 19.4-43 43-43h85.1zM256 400c79.5 0 144-64.5 144-144s-64.5-144-144-144-144 64.5-144 144 64.5 144 144 144zm0-64c-44.2 0-80-35.8-80-80s35.8-80 80-80 80 35.8 80 80-35.8 80-80 80z'/> </svg>"
+      type="image/svg+xml"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-gray-100">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body class="bg-gray-100">
     <!-- Navigation -->
     <nav class="bg-blue-900 text-white p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold">
-                <i class="fas fa-video mr-2"></i>
-                Surveillance Dashboard
-            </h1>
-            <div class="flex items-center space-x-4">
-                <span class="text-sm">
-                    <i class="fas fa-circle text-green-400 mr-1"></i>
-                    <span id="activeStreams">0</span> Active Cameras
-                </span>
-                <span class="text-sm" id="currentTime"></span>
-            </div>
+      <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-xl font-bold">
+          <i class="fas fa-video mr-2"></i>
+          Surveillance Dashboard
+        </h1>
+        <div class="flex items-center space-x-4">
+          <span class="text-sm">
+            <i class="fas fa-circle text-green-400 mr-1"></i>
+            <span id="activeStreams">0</span> Active Cameras
+          </span>
+          <span class="text-sm" id="currentTime"></span>
         </div>
+      </div>
     </nav>
 
     <!-- Main Content -->
     <div class="container mx-auto p-6">
-        <!-- Dashboard Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <div class="bg-white p-6 rounded-lg shadow">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                        <i class="fas fa-eye text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-700">Today</h3>
-                        <p class="text-2xl font-bold text-blue-600" id="todayDetections">0</p>
-                    </div>
-                </div>
+      <!-- Dashboard Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div class="bg-white p-6 rounded-lg shadow">
+          <div class="flex items-center">
+            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+              <i class="fas fa-eye text-xl"></i>
             </div>
-            
-            <div class="bg-white p-6 rounded-lg shadow">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-green-100 text-green-600">
-                        <i class="fas fa-calendar-week text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-700">This Week</h3>
-                        <p class="text-2xl font-bold text-green-600" id="weekDetections">0</p>
-                    </div>
-                </div>
+            <div class="ml-4">
+              <h3 class="text-lg font-semibold text-gray-700">Today</h3>
+              <p class="text-2xl font-bold text-blue-600" id="todayDetections">
+                0
+              </p>
             </div>
-            
-            <div class="bg-white p-6 rounded-lg shadow">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-                        <i class="fas fa-users text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-700">People</h3>
-                        <p class="text-2xl font-bold text-purple-600" id="peopleCount">0</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white p-6 rounded-lg shadow">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-orange-100 text-orange-600">
-                        <i class="fas fa-car text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-700">Vehicles</h3>
-                        <p class="text-2xl font-bold text-orange-600" id="vehicleCount">0</p>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
 
-        <!-- Tabs -->
-        <div class="bg-white rounded-lg shadow">
-            <div class="border-b border-gray-200">
-                <nav class="flex space-x-8" aria-label="Tabs">
-                    <button class="tab-button active py-4 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600" data-tab="live">
-                        <i class="fas fa-video mr-2"></i>Live Streams
-                    </button>
-                    <button class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="history">
-                        <i class="fas fa-history mr-2"></i>Detection History
-                    </button>
-                    <button class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="reports">
-                        <i class="fas fa-chart-bar mr-2"></i>Reports
-                    </button>
-                    <button class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="cameras">
-                        <i class="fas fa-cog mr-2"></i>Camera Management
-                    </button>
-                </nav>
+        <div class="bg-white p-6 rounded-lg shadow">
+          <div class="flex items-center">
+            <div class="p-3 rounded-full bg-green-100 text-green-600">
+              <i class="fas fa-calendar-week text-xl"></i>
             </div>
-
-            <!-- Live Streams Tab -->
-            <div id="live-tab" class="tab-content p-6">
-                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6" id="cameraStreams">
-                    <!-- Camera streams will be loaded here -->
-                </div>
+            <div class="ml-4">
+              <h3 class="text-lg font-semibold text-gray-700">This Week</h3>
+              <p class="text-2xl font-bold text-green-600" id="weekDetections">
+                0
+              </p>
             </div>
-
-            <!-- Detection History Tab -->
-            <div id="history-tab" class="tab-content p-6 hidden">
-                <!-- Filters -->
-                <div class="bg-gray-50 p-4 rounded-lg mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Camera</label>
-                            <select id="filterCamera" class="w-full border border-gray-300 rounded-md px-3 py-2">
-                                <option value="">All Cameras</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                            <input type="date" id="filterStartDate" class="w-full border border-gray-300 rounded-md px-3 py-2">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                            <input type="date" id="filterEndDate" class="w-full border border-gray-300 rounded-md px-3 py-2">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Object Type</label>
-                            <select id="filterObjectType" class="w-full border border-gray-300 rounded-md px-3 py-2">
-                                <option value="">All Types</option>
-                                <option value="person">Person</option>
-                                <option value="car">Car</option>
-                                <option value="truck">Truck</option>
-                                <option value="motorcycle">Motorcycle</option>
-                                <option value="bus">Bus</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">License Plate</label>
-                            <input type="text" id="filterLicensePlate" placeholder="Search plate..." class="w-full border border-gray-300 rounded-md px-3 py-2">
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <button onclick="searchDetections()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                            <i class="fas fa-search mr-2"></i>Search
-                        </button>
-                        <button onclick="clearFilters()" class="ml-2 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400">
-                            Clear Filters
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Detection Results -->
-                <div id="detectionResults" class="space-y-4">
-                    <!-- Results will be loaded here -->
-                </div>
-            </div>
-
-            <!-- Reports Tab -->
-            <div id="reports-tab" class="tab-content p-6 hidden">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Frequency Report -->
-                    <div class="bg-white border rounded-lg p-4">
-                        <h3 class="text-lg font-semibold mb-4">
-                            <i class="fas fa-chart-line mr-2 text-blue-600"></i>
-                            Visit Frequency Report
-                        </h3>
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Time Period</label>
-                            <select id="frequencyDays" class="border border-gray-300 rounded-md px-3 py-2">
-                                <option value="1">Last 24 hours</option>
-                                <option value="7" selected>Last 7 days</option>
-                                <option value="30">Last 30 days</option>
-                            </select>
-                        </div>
-                        <button onclick="generateFrequencyReport()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
-                            Generate Report
-                        </button>
-                        <div id="frequencyResults" class="mt-4"></div>
-                    </div>
-
-                    <!-- License Plate Report -->
-                    <div class="bg-white border rounded-lg p-4">
-                        <h3 class="text-lg font-semibold mb-4">
-                            <i class="fas fa-car mr-2 text-green-600"></i>
-                            License Plate Tracking
-                        </h3>
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">License Plate</label>
-                            <input type="text" id="plateSearch" placeholder="Enter plate number..." class="w-full border border-gray-300 rounded-md px-3 py-2">
-                        </div>
-                        <button onclick="generatePlateReport()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
-                            Search Plate
-                        </button>
-                        <div id="plateResults" class="mt-4"></div>
-                    </div>
-                </div>
-
-                <!-- Activity Chart -->
-                <div class="mt-6 bg-white border rounded-lg p-4">
-                    <h3 class="text-lg font-semibold mb-4">
-                        <i class="fas fa-chart-area mr-2 text-purple-600"></i>
-                        Daily Activity
-                    </h3>
-                    <canvas id="activityChart" width="400" height="100"></canvas>
-                </div>
-            </div>
-
-            <!-- Camera Management Tab -->
-            <div id="cameras-tab" class="tab-content p-6 hidden">
-                <!-- Add Camera Form -->
-                <div class="bg-white border rounded-lg p-4 mb-6">
-                    <h3 class="text-lg font-semibold mb-4">
-                        <i class="fas fa-plus-circle mr-2 text-green-600"></i>
-                        Add New Camera
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Camera ID</label>
-                            <input type="text" id="newCameraId" placeholder="cam_01" class="w-full border border-gray-300 rounded-md px-3 py-2">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Camera Name</label>
-                            <input type="text" id="newCameraName" placeholder="Entrance Camera" class="w-full border border-gray-300 rounded-md px-3 py-2">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">RTSP URL</label>
-                            <input type="text" id="newCameraUrl" placeholder="rtsp://192.168.1.100:554/stream1" class="w-full border border-gray-300 rounded-md px-3 py-2">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                            <input type="text" id="newCameraLocation" placeholder="Main Entrance" class="w-full border border-gray-300 rounded-md px-3 py-2">
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <button onclick="addCamera()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                            <i class="fas fa-plus mr-2"></i>Add Camera
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Camera List -->
-                <div class="bg-white border rounded-lg p-4">
-                    <h3 class="text-lg font-semibold mb-4">
-                        <i class="fas fa-list mr-2 text-blue-600"></i>
-                        Camera List
-                    </h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full table-auto">
-                            <thead>
-                                <tr class="bg-gray-50">
-                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
-                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">ID</th>
-                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Name</th>
-                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Location</th>
-                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">RTSP URL</th>
-                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="cameraList">
-                                <!-- Camera list will be loaded here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
+
+        <div class="bg-white p-6 rounded-lg shadow">
+          <div class="flex items-center">
+            <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+              <i class="fas fa-users text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <h3 class="text-lg font-semibold text-gray-700">People</h3>
+              <p class="text-2xl font-bold text-purple-600" id="peopleCount">
+                0
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow">
+          <div class="flex items-center">
+            <div class="p-3 rounded-full bg-orange-100 text-orange-600">
+              <i class="fas fa-car text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <h3 class="text-lg font-semibold text-gray-700">Vehicles</h3>
+              <p class="text-2xl font-bold text-orange-600" id="vehicleCount">
+                0
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="border-b border-gray-200">
+          <nav class="flex space-x-8" aria-label="Tabs">
+            <button
+              class="tab-button active py-4 px-4 border-b-2 border-blue-500 font-medium text-sm text-blue-600"
+              data-tab="live"
+            >
+              <i class="fas fa-video mr-2"></i>Live Streams
+            </button>
+            <button
+              class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              data-tab="history"
+            >
+              <i class="fas fa-history mr-2"></i>Detection History
+            </button>
+            <button
+              class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              data-tab="reports"
+            >
+              <i class="fas fa-chart-bar mr-2"></i>Reports
+            </button>
+            <button
+              class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              data-tab="cameras"
+            >
+              <i class="fas fa-cog mr-2"></i>Camera Management
+            </button>
+          </nav>
+        </div>
+
+        <!-- Live Streams Tab -->
+        <div id="live-tab" class="tab-content p-6">
+          <div
+            class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
+            id="cameraStreams"
+          >
+            <!-- Camera streams will be loaded here -->
+          </div>
+        </div>
+
+        <!-- Detection History Tab -->
+        <div id="history-tab" class="tab-content p-6 hidden">
+          <!-- Filters -->
+          <div class="bg-gray-50 p-4 rounded-lg mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >Camera</label
+                >
+                <select
+                  id="filterCamera"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2"
+                >
+                  <option value="">All Cameras</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >Start Date</label
+                >
+                <input
+                  type="date"
+                  id="filterStartDate"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >End Date</label
+                >
+                <input
+                  type="date"
+                  id="filterEndDate"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >Object Type</label
+                >
+                <select
+                  id="filterObjectType"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2"
+                >
+                  <option value="">All Types</option>
+                  <option value="person">Person</option>
+                  <option value="car">Car</option>
+                  <option value="truck">Truck</option>
+                  <option value="motorcycle">Motorcycle</option>
+                  <option value="bus">Bus</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >License Plate</label
+                >
+                <input
+                  type="text"
+                  id="filterLicensePlate"
+                  placeholder="Search plate..."
+                  class="w-full border border-gray-300 rounded-md px-3 py-2"
+                />
+              </div>
+            </div>
+            <div class="mt-4">
+              <button
+                onclick="searchDetections()"
+                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+              >
+                <i class="fas fa-search mr-2"></i>Search
+              </button>
+              <button
+                onclick="clearFilters()"
+                class="ml-2 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+              >
+                Clear Filters
+              </button>
+            </div>
+          </div>
+
+          <!-- Detection Results -->
+          <div id="detectionResults" class="space-y-4">
+            <!-- Results will be loaded here -->
+          </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports-tab" class="tab-content p-6 hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Frequency Report -->
+            <div class="bg-white border rounded-lg p-4">
+              <h3 class="text-lg font-semibold mb-4">
+                <i class="fas fa-chart-line mr-2 text-blue-600"></i>
+                Visit Frequency Report
+              </h3>
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Time Period</label
+                >
+                <select
+                  id="frequencyDays"
+                  class="border border-gray-300 rounded-md px-3 py-2"
+                >
+                  <option value="1">Last 24 hours</option>
+                  <option value="7" selected>Last 7 days</option>
+                  <option value="30">Last 30 days</option>
+                </select>
+              </div>
+              <button
+                onclick="generateFrequencyReport()"
+                class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+              >
+                Generate Report
+              </button>
+              <div id="frequencyResults" class="mt-4"></div>
+            </div>
+
+            <!-- License Plate Report -->
+            <div class="bg-white border rounded-lg p-4">
+              <h3 class="text-lg font-semibold mb-4">
+                <i class="fas fa-car mr-2 text-green-600"></i>
+                License Plate Tracking
+              </h3>
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >License Plate</label
+                >
+                <input
+                  type="text"
+                  id="plateSearch"
+                  placeholder="Enter plate number..."
+                  class="w-full border border-gray-300 rounded-md px-3 py-2"
+                />
+              </div>
+              <button
+                onclick="generatePlateReport()"
+                class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+              >
+                Search Plate
+              </button>
+              <div id="plateResults" class="mt-4"></div>
+            </div>
+          </div>
+
+          <!-- Activity Chart -->
+          <div class="mt-6 bg-white border rounded-lg p-4">
+            <h3 class="text-lg font-semibold mb-4">
+              <i class="fas fa-chart-area mr-2 text-purple-600"></i>
+              Daily Activity
+            </h3>
+            <div class="h-64 w-full">
+              <canvas id="activityChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Camera Management Tab -->
+        <div id="cameras-tab" class="tab-content p-6 hidden">
+          <!-- Add Camera Form -->
+          <div class="bg-white border rounded-lg p-4 mb-6">
+            <h3 class="text-lg font-semibold mb-4">
+              <i class="fas fa-plus-circle mr-2 text-green-600"></i>
+              Add New Camera
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >Camera ID</label
+                >
+                <input
+                  type="text"
+                  id="newCameraId"
+                  placeholder="cam_01"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >Camera Name</label
+                >
+                <input
+                  type="text"
+                  id="newCameraName"
+                  placeholder="Entrance Camera"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >RTSP URL</label
+                >
+                <input
+                  type="text"
+                  id="newCameraUrl"
+                  placeholder="rtsp://192.168.1.100:554/stream1"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >Location</label
+                >
+                <input
+                  type="text"
+                  id="newCameraLocation"
+                  placeholder="Main Entrance"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2"
+                />
+              </div>
+            </div>
+            <div class="mt-4">
+              <button
+                onclick="addCamera()"
+                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+              >
+                <i class="fas fa-plus mr-2"></i>Add Camera
+              </button>
+            </div>
+          </div>
+
+          <!-- Camera List -->
+          <div class="bg-white border rounded-lg p-4">
+            <h3 class="text-lg font-semibold mb-4">
+              <i class="fas fa-list mr-2 text-blue-600"></i>
+              Camera List
+            </h3>
+            <div class="overflow-x-auto">
+              <table class="min-w-full table-auto">
+                <thead>
+                  <tr class="bg-gray-50">
+                    <th
+                      class="px-4 py-2 text-left text-sm font-medium text-gray-700"
+                    >
+                      Status
+                    </th>
+                    <th
+                      class="px-4 py-2 text-left text-sm font-medium text-gray-700"
+                    >
+                      ID
+                    </th>
+                    <th
+                      class="px-4 py-2 text-left text-sm font-medium text-gray-700"
+                    >
+                      Name
+                    </th>
+                    <th
+                      class="px-4 py-2 text-left text-sm font-medium text-gray-700"
+                    >
+                      Location
+                    </th>
+                    <th
+                      class="px-4 py-2 text-left text-sm font-medium text-gray-700"
+                    >
+                      RTSP URL
+                    </th>
+                    <th
+                      class="px-4 py-2 text-left text-sm font-medium text-gray-700"
+                    >
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="cameraList">
+                  <!-- Camera list will be loaded here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Loading Modal -->
-    <div id="loadingModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-lg shadow-lg">
-            <div class="flex items-center">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-4"></div>
-                <span class="text-lg">Loading...</span>
-            </div>
+    <div
+      id="loadingModal"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white p-6 rounded-lg shadow-lg">
+        <div class="flex items-center">
+          <div
+            class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-4"
+          ></div>
+          <span class="text-lg">Loading...</span>
         </div>
+      </div>
     </div>
 
     <script>
-        // Global variables
-        let ws = null;
-        let activityChart = null;
+      // Global variables
+      let ws = null;
+      let activityChart = null;
 
-        // Initialize dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeDashboard();
-            setupTabs();
-            setupWebSocket();
-            updateCurrentTime();
-            setInterval(updateCurrentTime, 1000);
-        });
+      // Initialize dashboard
+      document.addEventListener("DOMContentLoaded", function () {
+        initializeDashboard();
+        setupTabs();
+        setupWebSocket();
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 1000);
+      });
 
-        function initializeDashboard() {
-            loadDashboardStats();
-            loadCameras();
-            loadCameraStreams();
-            setDefaultDates();
-        }
+      function initializeDashboard() {
+        loadDashboardStats();
+        loadCameras();
+        loadCameraStreams();
+        setDefaultDates();
+      }
 
-        function setupTabs() {
-            const tabButtons = document.querySelectorAll('.tab-button');
-            const tabContents = document.querySelectorAll('.tab-content');
+      function setupTabs() {
+        const tabButtons = document.querySelectorAll(".tab-button");
+        const tabContents = document.querySelectorAll(".tab-content");
 
-            tabButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const tabName = this.getAttribute('data-tab');
-                    
-                    // Update active tab button
-                    tabButtons.forEach(btn => {
-                        btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
-                        btn.classList.add('border-transparent', 'text-gray-500');
-                    });
-                    
-                    this.classList.add('active', 'border-blue-500', 'text-blue-600');
-                    this.classList.remove('border-transparent', 'text-gray-500');
+        tabButtons.forEach((button) => {
+          button.addEventListener("click", function () {
+            const tabName = this.getAttribute("data-tab");
 
-                    // Show corresponding tab content
-                    tabContents.forEach(content => {
-                        content.classList.add('hidden');
-                    });
-                    
-                    document.getElementById(tabName + '-tab').classList.remove('hidden');
-                    
-                    // Load tab-specific data
-                    if (tabName === 'history') {
-                        searchDetections();
-                    } else if (tabName === 'reports') {
-                        initializeActivityChart();
-                    } else if (tabName === 'cameras') {
-                        loadCameraList();
-                    }
-                });
+            // Update active tab button
+            tabButtons.forEach((btn) => {
+              btn.classList.remove(
+                "active",
+                "border-blue-500",
+                "text-blue-600"
+              );
+              btn.classList.add("border-transparent", "text-gray-500");
             });
-        }
 
-        function setupWebSocket() {
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${protocol}//${window.location.host}/ws`;
-            
-            ws = new WebSocket(wsUrl);
-            
-            ws.onmessage = function(event) {
-                const data = JSON.parse(event.data);
-                if (data.type === 'stats_update') {
-                    updateDashboardStats(data.data);
-                }
-            };
-            
-            ws.onclose = function() {
-                // Reconnect after 5 seconds
-                setTimeout(setupWebSocket, 5000);
-            };
-        }
+            this.classList.add("active", "border-blue-500", "text-blue-600");
+            this.classList.remove("border-transparent", "text-gray-500");
 
-        function updateCurrentTime() {
-            const now = new Date();
-            document.getElementById('currentTime').textContent = now.toLocaleString();
-        }
+            // Show corresponding tab content
+            tabContents.forEach((content) => {
+              content.classList.add("hidden");
+            });
 
-        function setDefaultDates() {
-            const today = new Date();
-            const yesterday = new Date(today);
-            yesterday.setDate(yesterday.getDate() - 1);
-            
-            document.getElementById('filterStartDate').value = yesterday.toISOString().split('T')[0];
-            document.getElementById('filterEndDate').value = today.toISOString().split('T')[0];
-        }
+            document
+              .getElementById(tabName + "-tab")
+              .classList.remove("hidden");
 
-        // Dashboard Stats
-        async function loadDashboardStats() {
-            try {
-                const response = await fetch('/api/stats/dashboard');
-                const stats = await response.json();
-                updateDashboardStats(stats);
-            } catch (error) {
-                console.error('Error loading dashboard stats:', error);
+            // Load tab-specific data
+            if (tabName === "history") {
+              searchDetections();
+            } else if (tabName === "reports") {
+              initializeActivityChart();
+            } else if (tabName === "cameras") {
+              loadCameraList();
             }
-        }
+          });
+        });
+      }
 
-        function updateDashboardStats(stats) {
-            document.getElementById('todayDetections').textContent = stats.today_detections || 0;
-            document.getElementById('weekDetections').textContent = stats.week_detections || 0;
-            document.getElementById('activeStreams').textContent = stats.active_cameras || 0;
-            
-            // Update detection type counts
-            const peopleCount = stats.detection_types?.person || 0;
-            const vehicleCount = (stats.detection_types?.car || 0) + 
-                               (stats.detection_types?.truck || 0) + 
-                               (stats.detection_types?.motorcycle || 0) + 
-                               (stats.detection_types?.bus || 0);
-            
-            document.getElementById('peopleCount').textContent = peopleCount;
-            document.getElementById('vehicleCount').textContent = vehicleCount;
-        }
+      function setupWebSocket() {
+        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        const wsUrl = `${protocol}//${window.location.host}/ws`;
 
-        // Camera Management
-        async function loadCameras() {
-            try {
-                const response = await fetch('/api/cameras');
-                const cameras = await response.json();
-                
-                // Update filter dropdown
-                const filterSelect = document.getElementById('filterCamera');
-                filterSelect.innerHTML = '<option value="">All Cameras</option>';
-                
-                cameras.forEach(camera => {
-                    const option = document.createElement('option');
-                    option.value = camera.id;
-                    option.textContent = camera.name;
-                    filterSelect.appendChild(option);
-                });
-                
-                return cameras;
-            } catch (error) {
-                console.error('Error loading cameras:', error);
-                return [];
+        ws = new WebSocket(wsUrl);
+
+        ws.onmessage = function (event) {
+          const data = JSON.parse(event.data);
+          if (data.type === "stats_update") {
+            updateDashboardStats(data.data);
+          }
+        };
+
+        ws.onclose = function () {
+          // Reconnect after 5 seconds
+          setTimeout(setupWebSocket, 5000);
+        };
+      }
+
+      function updateCurrentTime() {
+        const now = new Date();
+        document.getElementById("currentTime").textContent =
+          now.toLocaleString();
+      }
+
+      function setDefaultDates() {
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        document.getElementById("filterStartDate").value = yesterday
+          .toISOString()
+          .split("T")[0];
+        document.getElementById("filterEndDate").value = today
+          .toISOString()
+          .split("T")[0];
+      }
+
+      // Dashboard Stats
+      async function loadDashboardStats() {
+        try {
+          const response = await fetch("/api/stats/dashboard");
+          const stats = await response.json();
+          updateDashboardStats(stats);
+        } catch (error) {
+          console.error("Error loading dashboard stats:", error);
+        }
+      }
+
+      function updateDashboardStats(stats) {
+        document.getElementById("todayDetections").textContent =
+          stats.today_detections || 0;
+        document.getElementById("weekDetections").textContent =
+          stats.week_detections || 0;
+        document.getElementById("activeStreams").textContent =
+          stats.active_cameras || 0;
+
+        // Update detection type counts
+        const peopleCount = stats.detection_types?.person || 0;
+        const vehicleCount =
+          (stats.detection_types?.car || 0) +
+          (stats.detection_types?.truck || 0) +
+          (stats.detection_types?.motorcycle || 0) +
+          (stats.detection_types?.bus || 0);
+
+        document.getElementById("peopleCount").textContent = peopleCount;
+        document.getElementById("vehicleCount").textContent = vehicleCount;
+
+        // Update activity chart if it exists and reports tab is active
+        if (activityChart && stats.hourly_activity) {
+          const hourlyData = new Array(24).fill(0);
+
+          Object.entries(stats.hourly_activity).forEach(([hour, count]) => {
+            const hourIndex = parseInt(hour, 10);
+            if (hourIndex >= 0 && hourIndex < 24) {
+              hourlyData[hourIndex] = count;
             }
+          });
+
+          activityChart.data.datasets[0].data = hourlyData;
+          activityChart.update();
         }
+      }
 
-        async function loadCameraStreams() {
-            const cameras = await loadCameras();
-            const streamsContainer = document.getElementById('cameraStreams');
-            streamsContainer.innerHTML = '';
+      // Camera Management
+      async function loadCameras() {
+        try {
+          const response = await fetch("/api/cameras");
+          const cameras = await response.json();
 
-            if (cameras.length === 0) {
-                streamsContainer.innerHTML = `
+          // Update filter dropdown
+          const filterSelect = document.getElementById("filterCamera");
+          filterSelect.innerHTML = '<option value="">All Cameras</option>';
+
+          cameras.forEach((camera) => {
+            const option = document.createElement("option");
+            option.value = camera.id;
+            option.textContent = camera.name;
+            filterSelect.appendChild(option);
+          });
+
+          return cameras;
+        } catch (error) {
+          console.error("Error loading cameras:", error);
+          return [];
+        }
+      }
+
+      async function loadCameraStreams() {
+        const cameras = await loadCameras();
+        const streamsContainer = document.getElementById("cameraStreams");
+        streamsContainer.innerHTML = "";
+
+        if (cameras.length === 0) {
+          streamsContainer.innerHTML = `
                     <div class="col-span-full text-center py-8">
                         <i class="fas fa-video-slash text-4xl text-gray-400 mb-4"></i>
                         <p class="text-gray-600">No cameras configured. Go to Camera Management to add cameras.</p>
                     </div>
                 `;
-                return;
-            }
+          return;
+        }
 
-            cameras.forEach(camera => {
-                const cameraCard = document.createElement('div');
-                cameraCard.className = 'bg-white border rounded-lg p-4';
-                
-                const statusColor = camera.is_active ? 'text-green-600' : 'text-red-600';
-                const statusIcon = camera.is_active ? 'fa-circle' : 'fa-circle';
-                const statusText = camera.is_active ? 'Live' : 'Offline';
-                
-                cameraCard.innerHTML = `
+        cameras.forEach((camera) => {
+          const cameraCard = document.createElement("div");
+          cameraCard.className = "bg-white border rounded-lg p-4";
+
+          const statusColor = camera.is_active
+            ? "text-green-600"
+            : "text-red-600";
+          const statusIcon = camera.is_active ? "fa-circle" : "fa-circle";
+          const statusText = camera.is_active ? "Live" : "Offline";
+
+          cameraCard.innerHTML = `
                     <div class="flex justify-between items-center mb-3">
-                        <h4 class="font-semibold text-gray-800">${camera.name}</h4>
+                        <h4 class="font-semibold text-gray-800">${
+                          camera.name
+                        }</h4>
                         <span class="${statusColor}">
                             <i class="fas ${statusIcon} mr-1"></i>${statusText}
                         </span>
                     </div>
                     <div class="aspect-video bg-gray-900 rounded-lg mb-3 relative overflow-hidden">
-                        ${camera.is_active ? 
-                            `<img src="/api/stream/${camera.id}" alt="Live stream" class="w-full h-full object-cover" id="stream-${camera.id}" onerror="handleStreamError(this)">` :
-                            `<div class="flex items-center justify-center h-full text-gray-400">
+                        ${
+                          camera.is_active
+                            ? `<img src="/api/stream/${camera.id}" alt="Live stream" class="w-full h-full object-cover" id="stream-${camera.id}" onerror="handleStreamError(this)">`
+                            : `<div class="flex items-center justify-center h-full text-gray-400">
                                 <i class="fas fa-video-slash text-2xl"></i>
                             </div>`
                         }
                     </div>
                     <p class="text-sm text-gray-600">${camera.location}</p>
-                    <p class="text-xs text-gray-400 truncate" title="${camera.rtsp_url}">${camera.rtsp_url}</p>
+                    <p class="text-xs text-gray-400 truncate" title="${
+                      camera.rtsp_url
+                    }">${camera.rtsp_url}</p>
                 `;
-                
-                streamsContainer.appendChild(cameraCard);
-                
-                // Refresh stream images periodically
-                if (camera.is_active) {
-                    setInterval(() => {
-                        const img = document.getElementById(`stream-${camera.id}`);
-                        if (img) {
-                            img.src = `/api/stream/${camera.id}?t=${Date.now()}`;
-                        }
-                    }, 2000); // Refresh every 2 seconds
-                }
-            });
-        }
 
-        function handleStreamError(img) {
-            img.parentElement.innerHTML = `
+          streamsContainer.appendChild(cameraCard);
+
+          // Refresh stream images periodically
+          if (camera.is_active) {
+            setInterval(() => {
+              const img = document.getElementById(`stream-${camera.id}`);
+              if (img) {
+                img.src = `/api/stream/${camera.id}?t=${Date.now()}`;
+              }
+            }, 2000); // Refresh every 2 seconds
+          }
+        });
+      }
+
+      function handleStreamError(img) {
+        img.parentElement.innerHTML = `
                 <div class="flex items-center justify-center h-full text-red-400">
                     <i class="fas fa-exclamation-triangle text-2xl"></i>
                 </div>
             `;
+      }
+
+      async function addCamera() {
+        const id = document.getElementById("newCameraId").value.trim();
+        const name = document.getElementById("newCameraName").value.trim();
+        const url = document.getElementById("newCameraUrl").value.trim();
+        const location = document
+          .getElementById("newCameraLocation")
+          .value.trim();
+
+        if (!id || !name || !url) {
+          alert("Please fill in all required fields (ID, Name, RTSP URL)");
+          return;
         }
 
-        async function addCamera() {
-            const id = document.getElementById('newCameraId').value.trim();
-            const name = document.getElementById('newCameraName').value.trim();
-            const url = document.getElementById('newCameraUrl').value.trim();
-            const location = document.getElementById('newCameraLocation').value.trim();
+        showLoading(true);
 
-            if (!id || !name || !url) {
-                alert('Please fill in all required fields (ID, Name, RTSP URL)');
-                return;
-            }
+        try {
+          const response = await fetch("/api/cameras/add", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              id: id,
+              name: name,
+              rtsp_url: url,
+              location: location,
+              active: true,
+            }),
+          });
 
-            showLoading(true);
+          if (response.ok) {
+            alert("Camera added successfully!");
 
-            try {
-                const response = await fetch('/api/cameras/add', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        id: id,
-                        name: name,
-                        rtsp_url: url,
-                        location: location,
-                        active: true
-                    })
-                });
+            // Clear form
+            document.getElementById("newCameraId").value = "";
+            document.getElementById("newCameraName").value = "";
+            document.getElementById("newCameraUrl").value = "";
+            document.getElementById("newCameraLocation").value = "";
 
-                if (response.ok) {
-                    alert('Camera added successfully!');
-                    
-                    // Clear form
-                    document.getElementById('newCameraId').value = '';
-                    document.getElementById('newCameraName').value = '';
-                    document.getElementById('newCameraUrl').value = '';
-                    document.getElementById('newCameraLocation').value = '';
-                    
-                    // Reload camera data
-                    loadCameras();
-                    loadCameraStreams();
-                    loadCameraList();
-                } else {
-                    const error = await response.json();
-                    alert('Error adding camera: ' + error.detail);
-                }
-            } catch (error) {
-                alert('Error adding camera: ' + error.message);
-            } finally {
-                showLoading(false);
-            }
+            // Reload camera data
+            loadCameras();
+            loadCameraStreams();
+            loadCameraList();
+          } else {
+            const error = await response.json();
+            alert("Error adding camera: " + error.detail);
+          }
+        } catch (error) {
+          alert("Error adding camera: " + error.message);
+        } finally {
+          showLoading(false);
         }
+      }
 
-        async function loadCameraList() {
-            try {
-                const cameras = await loadCameras();
-                const tbody = document.getElementById('cameraList');
-                tbody.innerHTML = '';
+      async function loadCameraList() {
+        try {
+          const cameras = await loadCameras();
+          const tbody = document.getElementById("cameraList");
+          tbody.innerHTML = "";
 
-                cameras.forEach(camera => {
-                    const row = document.createElement('tr');
-                    row.className = 'border-b';
-                    
-                    const statusColor = camera.is_active ? 'text-green-600' : 'text-red-600';
-                    const statusText = camera.is_active ? 'Active' : 'Inactive';
-                    
-                    row.innerHTML = `
+          cameras.forEach((camera) => {
+            const row = document.createElement("tr");
+            row.className = "border-b";
+
+            const statusColor = camera.is_active
+              ? "text-green-600"
+              : "text-red-600";
+            const statusText = camera.is_active ? "Active" : "Inactive";
+
+            row.innerHTML = `
                         <td class="px-4 py-2">
                             <span class="${statusColor}">
                                 <i class="fas fa-circle mr-1"></i>${statusText}
@@ -563,159 +750,181 @@
                             </button>
                         </td>
                     `;
-                    
-                    tbody.appendChild(row);
-                });
-            } catch (error) {
-                console.error('Error loading camera list:', error);
-            }
+
+            tbody.appendChild(row);
+          });
+        } catch (error) {
+          console.error("Error loading camera list:", error);
+        }
+      }
+
+      async function removeCamera(cameraId) {
+        if (!confirm("Are you sure you want to remove this camera?")) {
+          return;
         }
 
-        async function removeCamera(cameraId) {
-            if (!confirm('Are you sure you want to remove this camera?')) {
-                return;
-            }
+        try {
+          const response = await fetch(`/api/cameras/${cameraId}`, {
+            method: "DELETE",
+          });
 
-            try {
-                const response = await fetch(`/api/cameras/${cameraId}`, {
-                    method: 'DELETE'
-                });
-
-                if (response.ok) {
-                    alert('Camera removed successfully!');
-                    loadCameras();
-                    loadCameraStreams();
-                    loadCameraList();
-                } else {
-                    const error = await response.json();
-                    alert('Error removing camera: ' + error.detail);
-                }
-            } catch (error) {
-                alert('Error removing camera: ' + error.message);
-            }
+          if (response.ok) {
+            alert("Camera removed successfully!");
+            loadCameras();
+            loadCameraStreams();
+            loadCameraList();
+          } else {
+            const error = await response.json();
+            alert("Error removing camera: " + error.detail);
+          }
+        } catch (error) {
+          alert("Error removing camera: " + error.message);
         }
+      }
 
-        // Detection History
-        async function searchDetections() {
-            const filters = {
-                camera_id: document.getElementById('filterCamera').value || null,
-                start_date: document.getElementById('filterStartDate').value || null,
-                end_date: document.getElementById('filterEndDate').value || null,
-                object_type: document.getElementById('filterObjectType').value || null,
-                license_plate: document.getElementById('filterLicensePlate').value || null,
-                limit: 50
-            };
+      // Detection History
+      async function searchDetections() {
+        const filters = {
+          camera_id: document.getElementById("filterCamera").value || null,
+          start_date: document.getElementById("filterStartDate").value || null,
+          end_date: document.getElementById("filterEndDate").value || null,
+          object_type:
+            document.getElementById("filterObjectType").value || null,
+          license_plate:
+            document.getElementById("filterLicensePlate").value || null,
+          limit: 50,
+        };
 
-            showLoading(true);
+        showLoading(true);
 
-            try {
-                const response = await fetch('/api/detections', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(filters)
-                });
+        try {
+          const response = await fetch("/api/detections", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(filters),
+          });
 
-                const data = await response.json();
-                displayDetectionResults(data.detections);
-            } catch (error) {
-                console.error('Error searching detections:', error);
-            } finally {
-                showLoading(false);
-            }
+          const data = await response.json();
+          displayDetectionResults(data.detections);
+        } catch (error) {
+          console.error("Error searching detections:", error);
+        } finally {
+          showLoading(false);
         }
+      }
 
-        function displayDetectionResults(detections) {
-            const container = document.getElementById('detectionResults');
-            
-            if (detections.length === 0) {
-                container.innerHTML = `
+      function displayDetectionResults(detections) {
+        const container = document.getElementById("detectionResults");
+
+        if (detections.length === 0) {
+          container.innerHTML = `
                     <div class="text-center py-8">
                         <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
                         <p class="text-gray-600">No detections found matching your criteria.</p>
                     </div>
                 `;
-                return;
-            }
+          return;
+        }
 
-            container.innerHTML = detections.map(detection => {
-                const timestamp = new Date(detection.timestamp).toLocaleString();
-                const plateInfo = detection.license_plate ? 
-                    `<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">Plate: ${detection.license_plate}</span>` : '';
-                
-                return `
+        container.innerHTML = detections
+          .map((detection) => {
+            const timestamp = new Date(detection.timestamp).toLocaleString();
+            const plateInfo = detection.license_plate
+              ? `<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">Plate: ${detection.license_plate}</span>`
+              : "";
+
+            return `
                     <div class="bg-white border rounded-lg p-4 flex items-center space-x-4">
                         <div class="flex-shrink-0">
-                            <img src="/api/thumbnail/${detection.thumbnail_path.replace('thumbnails/', '')}" 
-                                 alt="Detection thumbnail" 
-                                 class="w-20 h-20 object-cover rounded-lg"
-                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik00MCA1NkM0OC44MzY2IDU2IDU2IDQ4LjgzNjYgNTYgNDBDNTYgMzEuMTYzNCA0OC44MzY2IDI0IDQwIDI0QzMxLjE2MzQgMjQgMjQgMzEuMTYzNCAyNCA0MEMyNCA0OC44MzY2IDMxLjE2MzQgNTYgNDAgNTZaIiBmaWxsPSIjOUNBM0FGIi8+CjwvcmVnPg=='">
+                            <img src="/api/thumbnail/${detection.thumbnail_path.replace(
+                              "thumbnails/",
+                              ""
+                            )}" 
+                                alt="Detection thumbnail" 
+                                class="w-20 h-20 object-cover rounded-lg cursor-pointer"
+                                onclick="enlargeImage(this.src)"
+                                onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik00MCA1NkM0OC44MzY2IDU2IDU2IDQ4LjgzNjYgNTYgNDBDNTYgMzEuMTYzNCA0OC44MzY2IDI0IDQwIDI0QzMxLjE2MzQgMjQgMjQgMzEuMTYzNCAyNCA0MEMyNCA0OC44MzY2IDMxLjE2MzQgNTYgNDAgNTZaIiBmaWxsPSIjOUNBM0FGIi8+CjwvcmVnPg=='">
                         </div>
                         <div class="flex-grow">
                             <div class="flex items-center justify-between">
-                                <h4 class="font-semibold text-gray-800 capitalize">${detection.object_type}</h4>
+                                <h4 class="font-semibold text-gray-800 capitalize">${
+                                  detection.object_type
+                                }</h4>
                                 <span class="text-sm text-gray-500">${timestamp}</span>
                             </div>
-                            <p class="text-sm text-gray-600">Camera: ${detection.camera_id}</p>
-                            <p class="text-sm text-gray-600">Confidence: ${(detection.confidence * 100).toFixed(1)}%</p>
+                            <p class="text-sm text-gray-600">Camera: ${
+                              detection.camera_id
+                            }</p>
+                            <p class="text-sm text-gray-600">Confidence: ${(
+                              detection.confidence * 100
+                            ).toFixed(1)}%</p>
                             <div class="mt-2">
                                 ${plateInfo}
                             </div>
                         </div>
                     </div>
+                    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
+                        <img id="modalImage" class="max-w-[90%] max-h-[90%] rounded-lg shadow-lg">
+                    </div>                   
                 `;
-            }).join('');
+          })
+          .join("");
+      }
+
+      function clearFilters() {
+        document.getElementById("filterCamera").value = "";
+        document.getElementById("filterObjectType").value = "";
+        document.getElementById("filterLicensePlate").value = "";
+        setDefaultDates();
+        searchDetections();
+      }
+
+      // Reports
+      async function generateFrequencyReport() {
+        const days = document.getElementById("frequencyDays").value;
+
+        showLoading(true);
+
+        try {
+          const response = await fetch("/api/reports/generate", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              report_type: "frequency",
+              parameters: { days: parseInt(days) },
+            }),
+          });
+
+          const report = await response.json();
+          displayFrequencyReport(report.data);
+        } catch (error) {
+          console.error("Error generating frequency report:", error);
+        } finally {
+          showLoading(false);
+        }
+      }
+
+      function displayFrequencyReport(data) {
+        const container = document.getElementById("frequencyResults");
+
+        if (data.length === 0) {
+          container.innerHTML =
+            '<p class="text-gray-600">No data available for the selected period.</p>';
+          return;
         }
 
-        function clearFilters() {
-            document.getElementById('filterCamera').value = '';
-            document.getElementById('filterObjectType').value = '';
-            document.getElementById('filterLicensePlate').value = '';
-            setDefaultDates();
-            searchDetections();
-        }
-
-        // Reports
-        async function generateFrequencyReport() {
-            const days = document.getElementById('frequencyDays').value;
-            
-            showLoading(true);
-
-            try {
-                const response = await fetch('/api/reports/generate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        report_type: 'frequency',
-                        parameters: { days: parseInt(days) }
-                    })
-                });
-
-                const report = await response.json();
-                displayFrequencyReport(report.data);
-            } catch (error) {
-                console.error('Error generating frequency report:', error);
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        function displayFrequencyReport(data) {
-            const container = document.getElementById('frequencyResults');
-            
-            if (data.length === 0) {
-                container.innerHTML = '<p class="text-gray-600">No data available for the selected period.</p>';
-                return;
-            }
-
-            container.innerHTML = `
+        container.innerHTML = `
                 <div class="max-h-64 overflow-y-auto">
-                    ${data.map(item => {
-                        const plateText = item.license_plate && item.license_plate !== 'unknown' ? 
-                            ` (${item.license_plate})` : '';
+                    ${data
+                      .map((item) => {
+                        const plateText =
+                          item.license_plate && item.license_plate !== "unknown"
+                            ? ` (${item.license_plate})`
+                            : "";
                         return `
                             <div class="flex justify-between items-center py-2 border-b">
                                 <div>
@@ -726,111 +935,140 @@
                                 </div>
                             </div>
                         `;
-                    }).join('')}
+                      })
+                      .join("")}
                 </div>
             `;
+      }
+
+      async function generatePlateReport() {
+        const plate = document.getElementById("plateSearch").value.trim();
+
+        if (!plate) {
+          alert("Please enter a license plate number");
+          return;
         }
 
-        async function generatePlateReport() {
-            const plate = document.getElementById('plateSearch').value.trim();
-            
-            if (!plate) {
-                alert('Please enter a license plate number');
-                return;
-            }
+        showLoading(true);
 
-            showLoading(true);
+        try {
+          const response = await fetch("/api/reports/generate", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              report_type: "license_plate",
+              parameters: { plate: plate },
+            }),
+          });
 
-            try {
-                const response = await fetch('/api/reports/generate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        report_type: 'license_plate',
-                        parameters: { plate: plate }
-                    })
-                });
+          const report = await response.json();
+          displayPlateReport(report.data);
+        } catch (error) {
+          console.error("Error generating plate report:", error);
+        } finally {
+          showLoading(false);
+        }
+      }
 
-                const report = await response.json();
-                displayPlateReport(report.data);
-            } catch (error) {
-                console.error('Error generating plate report:', error);
-            } finally {
-                showLoading(false);
-            }
+      function displayPlateReport(data) {
+        const container = document.getElementById("plateResults");
+
+        if (data.length === 0) {
+          container.innerHTML =
+            '<p class="text-gray-600">No visits found for this license plate.</p>';
+          return;
         }
 
-        function displayPlateReport(data) {
-            const container = document.getElementById('plateResults');
-            
-            if (data.length === 0) {
-                container.innerHTML = '<p class="text-gray-600">No visits found for this license plate.</p>';
-                return;
-            }
-
-            container.innerHTML = `
+        container.innerHTML = `
                 <div class="max-h-64 overflow-y-auto">
                     <p class="font-medium mb-2">Found ${data.length} visits:</p>
-                    ${data.map(item => `
+                    ${data
+                      .map(
+                        (item) => `
                         <div class="flex justify-between items-center py-2 border-b text-sm">
                             <div>
-                                <div class="font-medium">${item.camera_name}</div>
-                                <div class="text-gray-600">${new Date(item.timestamp).toLocaleString()}</div>
+                                <div class="font-medium">${
+                                  item.camera_name
+                                }</div>
+                                <div class="text-gray-600">${new Date(
+                                  item.timestamp
+                                ).toLocaleString()}</div>
                             </div>
                             <div class="text-right">
-                                <div class="font-mono">${item.license_plate}</div>
-                                <div class="text-gray-600">${(item.confidence * 100).toFixed(1)}% conf.</div>
+                                <div class="font-mono">${
+                                  item.license_plate
+                                }</div>
+                                <div class="text-gray-600">${(
+                                  item.confidence * 100
+                                ).toFixed(1)}% conf.</div>
                             </div>
                         </div>
-                    `).join('')}
+                    `
+                      )
+                      .join("")}
                 </div>
             `;
+      }
+
+      function initializeActivityChart() {
+        const ctx = document.getElementById("activityChart").getContext("2d");
+
+        if (activityChart) {
+          activityChart.destroy();
         }
 
-        function initializeActivityChart() {
-            const ctx = document.getElementById('activityChart').getContext('2d');
-            
-            if (activityChart) {
-                activityChart.destroy();
-            }
+        activityChart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: Array.from(
+              { length: 24 },
+              (_, i) => `${i.toString().padStart(2, "0")}:00`
+            ),
+            datasets: [
+              {
+                label: "Detections",
+                data: new Array(24).fill(0),
+                borderColor: "rgb(59, 130, 246)",
+                backgroundColor: "rgba(59, 130, 246, 0.1)",
+                tension: 0.1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 3,
+            scales: {
+              y: {
+                beginAtZero: true,
+              },
+            },
+          },
+        });
+      }
 
-            activityChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: Array.from({length: 24}, (_, i) => `${i.toString().padStart(2, '0')}:00`),
-                    datasets: [{
-                        label: 'Detections',
-                        data: new Array(24).fill(0),
-                        borderColor: 'rgb(59, 130, 246)',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
+      // Utility functions
+      function showLoading(show) {
+        const modal = document.getElementById("loadingModal");
+        if (show) {
+          modal.classList.remove("hidden");
+          modal.classList.add("flex");
+        } else {
+          modal.classList.add("hidden");
+          modal.classList.remove("flex");
         }
+      }
+      function enlargeImage(src) {
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImage");
+        modalImg.src = src;
+        modal.classList.remove("hidden");
 
-        // Utility functions
-        function showLoading(show) {
-            const modal = document.getElementById('loadingModal');
-            if (show) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            } else {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-        }
+        // Close modal on click
+        modal.onclick = () => modal.classList.add("hidden");
+      }
     </script>
-</body>
+  </body>
 </html>

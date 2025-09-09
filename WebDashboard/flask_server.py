@@ -305,7 +305,6 @@ async def get_detections(filter_params: DetectionFilter):
                 "license_plate": visit[10],
                 "plate_confidence": visit[11]
             })
-        
         return {
             "detections": results,
             "total": len(results)
@@ -343,7 +342,6 @@ async def generate_report(report_request: ReportRequest):
                     "first_visit": row[3],
                     "last_visit": row[4]
                 })
-        
         elif report_request.report_type == "license_plate":
             plate = report_request.parameters.get("plate", "")
             cursor.execute('''
@@ -449,7 +447,6 @@ async def get_dashboard_stats():
         hourly_activity = dict(cursor.fetchall())
         
         conn.close()
-        
         return {
             "today_detections": today_detections,
             "week_detections": week_detections,
@@ -464,7 +461,7 @@ async def get_dashboard_stats():
 @app.get("/api/thumbnail/{path:path}")
 async def get_thumbnail(path: str):
     """Serve thumbnail images"""
-    thumbnail_path = Path("thumbnails") / path
+    thumbnail_path = Path() / path
     
     if not thumbnail_path.exists():
         raise HTTPException(status_code=404, detail="Thumbnail not found")

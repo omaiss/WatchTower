@@ -9,6 +9,35 @@ from DatabaseManagers.DataClasses import Detection, Visit
 from datetime import datetime
 from pathlib import Path
 
+
+def remove_duplicates(detections, iou_threshold=0.5):
+    filtered = []
+    detections = sorted(detections, key=lambda d: d.confidence, reverse=True)
+
+    while detections:
+        best = detections.pop(0)
+        filtered.append(best)
+        detections = [
+            d for d in detections 
+            if compute_iou(best.bbox, d.bbox) < iou_threshold
+        ]
+
+    return filtered
+
+def compute_iou(box1, box2):
+    x1, y1, x2, y2 = box1
+    x1p, y1p, x2p, y2p = box2
+
+    xi1, yi1 = max(x1, x1p), max(y1, y1p)
+    xi2, yi2 = min(x2, x2p), min(y2, y2p)
+    inter_area = max(0, xi2 - xi1) * max(0, yi2 - yi1)
+
+    box1_area = (x2 - x1) * (y2 - y1)
+    box2_area = (x2p - x1p) * (y2p - y1p)
+
+    union = box1_area + box2_area - inter_area
+    return inter_area / union if union > 0 else 0
+
 class ObjectDetector:
     def __init__(self, model_size: str = "yolov8n.pt"):
         """Initialize YOLO model for object detection"""
@@ -81,7 +110,7 @@ class ObjectDetector:
                             )
                             
                             detections.append(detection)
-            
+            detections = remove_duplicates(detections, iou_threshold=0.5)
         except Exception as e:
             print(f"Error during detection: {e}")
         
