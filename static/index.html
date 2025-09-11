@@ -128,8 +128,27 @@
 
         <!-- Live Streams Tab -->
         <div id="live-tab" class="tab-content p-6">
+          <button
+            type="button"
+            onclick="initializeDashboard()"
+            class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-green-500 dark:hover:bg-green-600 dark:focus:ring-green-700"
+          >
+            <svg
+              class="w-4 h-4 me-2"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 5a7 7 0 0 1 7 7h2l-3 4-3-4h2a5 5 0 1 0-5 5v2a7 7 0 0 1 0-14z"
+              />
+              <path d="M9 3l-1 2H4v2h4l1-2h6l1 2h4V5h-4l-1-2H9z" />
+            </svg>
+            Reload Cameras
+          </button>
           <div
-            class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
+            class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 py-4"
             id="cameraStreams"
           >
             <!-- Camera streams will be loaded here -->
@@ -185,6 +204,7 @@
                   <option value="car">Car</option>
                   <option value="truck">Truck</option>
                   <option value="motorcycle">Motorcycle</option>
+                  <option value="bicycle">Bicycle</option>
                   <option value="bus">Bus</option>
                 </select>
               </div>

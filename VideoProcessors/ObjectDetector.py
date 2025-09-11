@@ -152,3 +152,4 @@ class ObjectDetector:
             visits.append(visit)
         
         return visits
+    

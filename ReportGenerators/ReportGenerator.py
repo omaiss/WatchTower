@@ -1,7 +1,6 @@
 import sqlite3
 from DatabaseManagers.DatabaseManager import DatabaseManager
 
-
 class ReportGenerator:
     def __init__(self, db_manager: DatabaseManager):
         self.db_manager = db_manager

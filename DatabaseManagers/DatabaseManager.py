@@ -99,24 +99,23 @@ class DatabaseManager:
         query = "SELECT * FROM visits WHERE 1=1"
         params = []
         
-        # if camera_id:
-        #     query += " AND camera_id = ?"
-        #     params.append(camera_id)
-        # if start_date:
-        #     query += " AND timestamp >= ?"
-        #     params.append(start_date)
-        # if end_date:
-        #     query += " AND timestamp <= ?"
-        #     params.append(end_date)
-        # if object_type:
-        #     query += " AND object_type = ?"
-        #     params.append(object_type)
-        # if license_plate:
-        #     query += " AND license_plate LIKE ?"
-        #     params.append(f"%{license_plate}%")
+        if camera_id is not None:
+            query += " AND camera_id = ?"
+            params.append(camera_id)
+        if start_date is not None:
+            query += " AND timestamp >= ?"
+            params.append(start_date)
+        if end_date is not None:
+            query += " AND timestamp <= ?"
+            params.append(end_date)
+        if object_type is not None:
+            query += " AND object_type = ?"
+            params.append(object_type)
+        if license_plate is not None:
+            query += " AND license_plate LIKE ?"
+            params.append(f"%{license_plate}%")
         
         query += " ORDER BY timestamp DESC"
-        
         cursor.execute(query, params)
         results = cursor.fetchall()
         conn.close()
